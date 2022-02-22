@@ -1,4 +1,4 @@
-# vue2-wordle
+# vue-wordle
 
 [Wordle 游戏](https://www.powerlanguage.co.uk/wordle/)的 Vue2 实现。
 
