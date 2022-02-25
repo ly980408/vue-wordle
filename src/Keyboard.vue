@@ -2,7 +2,11 @@
   <div id="keyboard">
     <div v-for="(row, i) in rows" class="row">
       <div class="spacer" v-if="i === 1"></div>
-      <button v-for="key in row" :class="[ key.length > 1 && 'big' ]">
+      <button
+        v-for="key in row"
+        :class="[ key.length > 1 && 'big', keyboardLetterStates[key] ]"
+        @click="$emit('key', key)"
+      >
         <span v-if="key !== 'Backspace'">{{ key }}</span>
         <svg
           v-else
@@ -26,13 +30,20 @@
 export default {
   name: 'Keyboard',
   components: {},
+  props: {
+    keyboardLetterStates: {
+      default() {
+        return {}
+      }
+    }
+  },
   data() {
     return {
       rows: [
         [...'qwertyuiop'],
         [...'asdfghjkl'],
         ['Enter', ...'zxcvbnm', 'Backspace'],
-      ],
+      ]
     }
   },
   created() {},
@@ -72,8 +83,8 @@ button {
   justify-content: center;
   align-items: center;
   text-transform: uppercase;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.3);
-  transition: all 0.2s 1.5s;
+  /* -webkit-tap-highlight-color: rgba(0, 0, 0, 0.3);
+  transition: all 0.2s 1.5s; */
 }
 button.big {
   flex: 1.5;
