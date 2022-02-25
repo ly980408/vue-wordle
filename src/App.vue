@@ -2,10 +2,14 @@
   <div>
     <header>
       <h1>Wordle</h1>
-      <div style="position:absolute;right:0;bottom:4px">
-        <button @click="restart">Restart</button>
+      <div class="operations">
+        <a @click="helpVisible = true">玩法</a>
+        <!-- <a>分享</a> -->
       </div>
     </header>
+
+    <HowToPlay :visible.sync="helpVisible" />
+
     <div id="board">
       <div v-for="row in board" class="row">
         <div
@@ -27,14 +31,13 @@
         {{ message }}
       </div>
     </transition>
-
-    <!-- <div class="tips">仅供学习娱乐</div> -->
   </div>
 </template>
 
 <script>
 import Keyboard from './Keyboard.vue'
-import { allWords } from './words'
+import HowToPlay from './HowToPlay.vue'
+import { allWords, getWordOfTheDay } from './words'
 const TileStates = {
   NORMAL: '',
   CORRECT: 'correct',
@@ -42,13 +45,19 @@ const TileStates = {
   ABSENT: 'absent'
 }
 
-const answer = 'hello'
+// 总动效时长
+const transitionDuration = 300
+
+// 获取今日单词
+const answer = getWordOfTheDay()
+// console.log('answer:', answer)
 
 export default {
   name: 'App',
   components: {
-    Keyboard
-  },
+    Keyboard,
+    HowToPlay
+},
   data() {
     return {
       // 创建一个5x6的 board 记录游戏状态
@@ -59,7 +68,11 @@ export default {
       message: '',
   
       // 记录键盘上对应 letter 的状态
-      keyboardLetterStates: {}
+      keyboardLetterStates: {},
+      allowInput: true,
+
+      helpVisible: false,
+      shareVisible: false
     }
   },
   computed: {
@@ -69,6 +82,7 @@ export default {
   },
   methods: {
     onKey(key) {
+      if (!this.allowInput) return
       if (/^[a-zA-Z]$/.test(key)) {
         this.fillTile(key)
       } else if (key === 'Backspace') {
@@ -101,13 +115,14 @@ export default {
         // 得到用户猜测的单词
         const guess = this.currentRow.map(tile => tile.letter).join('')
         // 检查是否在猜测范围
-        // if (!allWords.includes(guess) && guess !== answer) {
-        //   this.showMessage('不在猜测范围内！')
-        //   return
-        // }
+        if (!allWords.includes(guess) && guess !== answer) {
+          this.showMessage('我好像不认识这个单词')
+          return
+        }
 
         const answerLetters = answer.split('')
         // 遍历该行所有 tile 标记状态
+        // 1. 标记 correct
         this.currentRow.forEach((tile, i) => {
           if (tile.letter === answerLetters[i]) {
             // 字母和位置都正确 -> CORRECT
@@ -116,17 +131,58 @@ export default {
             // 通过 `$set` API 设置 对应 letter 在键盘上的状态
             // 因为 keyboardLetterStates 初始化为 `{}`, 直接使用 this.keyboardLetterStates[tile.letter] 赋值将无法触发页面响应
             this.$set(this.keyboardLetterStates, tile.letter, TileStates.CORRECT)
-          } else if (answerLetters.includes(tile.letter)) {
+          }
+        })
+        // 2. 标记 present
+        this.currentRow.forEach((tile) => {
+          if (!tile.state && answerLetters.includes(tile.letter)) {
             // 字母存在但位置不对 -> PRESENT
             tile.state = TileStates.PRESENT
             answerLetters[answerLetters.indexOf(tile.letter)] = null
-            this.$set(this.keyboardLetterStates, tile.letter, TileStates.PRESENT)
-          } else {
-            // 不存在该字母 -> ABSENT
-            tile.state = TileStates.ABSENT
-            this.$set(this.keyboardLetterStates, tile.letter, TileStates.ABSENT)
+            if (!this.keyboardLetterStates[tile.letter]) {
+              // 防止出现之前添加的 CORRECT 状态被覆盖的情况
+              this.$set(this.keyboardLetterStates, tile.letter, TileStates.PRESENT)
+            }
           }
         })
+        // 3. 标记 absent
+        this.currentRow.forEach((tile) => {
+          if (!tile.state) {
+            // 不存在该字母 -> ABSENT
+            tile.state = TileStates.ABSENT
+            if (!this.keyboardLetterStates[tile.letter]) {
+              this.$set(this.keyboardLetterStates, tile.letter, TileStates.ABSENT)
+            }
+          }
+        })
+
+        // 暂时禁用输入，处理后续逻辑
+        this.allowInput = false
+        if (guess === answer) {
+          // 猜对了！
+          setTimeout(() => {
+            this.showMessage(
+              ['我严重怀疑你知道答案 #_#', '蒙的挺准嘛 ^.^', '我就知道你可以的 ^_^', '运气还可以哦 :)', '终于猜对咯 -.-', '玩的就是极限 *_*'][
+                this.currentRowIndex
+              ],
+              -1
+            )
+          }, transitionDuration + 100)
+        } else if (this.currentRowIndex < this.board.length - 1) {
+          // 开始下一行
+          this.currentRowIndex++
+          setTimeout(() => {
+            this.allowInput = true
+          }, transitionDuration + 100)
+        } else {
+          // game over :(
+          setTimeout(() => {
+            this.showMessage('很遗憾，机会用完了 :(\n答案是：' + answer.toUpperCase(), -1)
+          }, transitionDuration + 100)
+        }
+
+      } else {
+        this.showMessage('单词长度不够哦')
       }
     },
 
@@ -146,34 +202,17 @@ export default {
 }
 </script>
 
-<style>
-body {
-  font-family: Clear Sans,Helvetica Neue,Arial,sans-serif;
-  text-align: center;
-  max-width: 500px;
-  margin: 0 auto;
-}
-header {
-  border-bottom: 1px solid #ccc;
-  margin-bottom: 30px;
-  position: relative;
-}
-.tips {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  text-align: right;
-  font-size: 12px;
-  color: #cdcdcd;
-}
+<style scoped>
 #board {
   display: grid;
   grid-template-rows: repeat(6, 1fr);
   grid-gap: 5px;
-  width: 400px;
-  height: 480px;
+  --height: min(420px, calc(var(--vh, 100vh) - 310px));
+  height: var(--height);
+  width: min(350px, calc(var(--height) / 6 * 5));
   padding: 10px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 .row {
   display: grid;
@@ -216,19 +255,6 @@ header {
 }
 .tile.reversed .back {
   transform: rotateX(0);
-}
-
-.correct, .present, .absent {
-  color: #fff!important;
-}
-.correct {
-  background: #6aaa64!important;
-}
-.present {
-  background: #c9b458!important;
-}
-.absent {
-  background: #787c7e!important;
 }
 
 .message {
