@@ -13,7 +13,37 @@
       <p>每个猜测必须是一个有效的五个字母的单词。点击 Enter 按钮提交。</p>
       <p>每次猜测后，瓷砖的颜色都会改变，以显示您的猜测与单词的接近程度。</p>
     </section>
-    <section class="examples"></section>
+    <section class="examples">
+      <div class="row">
+        <div class="tile correct">H</div>
+        <div class="tile normal">E</div>
+        <div class="tile normal">L</div>
+        <div class="tile normal">L</div>
+        <div class="tile normal">O</div>
+      </div>
+      <p>表示字母 H 在单词中，并且处在正确的位置。</p>
+      <div class="row">
+        <div class="tile normal">W</div>
+        <div class="tile present">O</div>
+        <div class="tile normal">R</div>
+        <div class="tile normal">L</div>
+        <div class="tile normal">D</div>
+      </div>
+      <p>表示字母 O 在单词中，但处在错误的位置。</p>
+      <div class="row">
+        <div class="tile normal">F</div>
+        <div class="tile normal">I</div>
+        <div class="tile normal">R</div>
+        <div class="tile absent">S</div>
+        <div class="tile normal">T</div>
+      </div>
+      <p>表示字母 S 不在单词的任何位置</p>
+    </section>
+
+    <section>
+      <strong>每天只会有一个随机单词哦！</strong>
+    </section>
+
   </div>
 </template>
 
@@ -69,7 +99,7 @@ header {
 
 h2 {
   font-weight: 700;
-  font-size: 16px;
+  font-size: 1rem;
   text-align: center;
   margin: 10px 0;
 }
@@ -83,8 +113,28 @@ h2 {
 
 section {
   text-align: left;
-  padding: 16px;
+  padding: 32px;
   padding-top: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(5, 40px);
+  grid-gap: 5px;
+}
+.tile {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  line-height: 2rem;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+.tile.normal {
+  border: 2px solid #d3d6da;
 }
 
 </style>
