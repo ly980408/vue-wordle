@@ -11,7 +11,7 @@
     <section>
       <p>一天就一个单词没猜够？</p>
       <p>那么通过下面的自定义单词分享功能，来和你的朋友互相出题、互相折磨吧！</p>
-      <!-- <p>如果不输入单词，直接点击按钮可以复制默认链接，猜测今天的随机单词哦。</p> -->
+      <p>如果不输入单词，直接点击按钮可以复制默认链接，猜测今天的随机单词哦。</p>
     </section>
     <section>
       <div class="custom">
@@ -65,8 +65,11 @@ export default {
     },
     getURL() {
       const word = this.word.trim()
-      if (wordCheckReg.test(word)) {
-        const url = BASE_URL + '?' + btoa(word.toLowerCase())
+      if (wordCheckReg.test(word) || !word) {
+        let url = BASE_URL
+        if (word) {
+          url = url + '?' + btoa(word.toLowerCase())
+        }
         this.url = url
         // copy
         const textarea = document.createElement('textarea')
