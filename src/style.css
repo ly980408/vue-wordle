@@ -44,3 +44,8 @@ a + a {
 .absent {
   background: #787c7e!important;
 }
+
+.tips {
+  font-size: 14px;
+  color: #cdcdcd;
+}

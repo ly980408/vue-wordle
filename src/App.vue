@@ -4,11 +4,12 @@
       <h1>Wordle</h1>
       <div class="operations">
         <a @click="helpVisible = true">玩法</a>
-        <!-- <a>分享</a> -->
+        <a @click="shareVisible = true">分享</a>
       </div>
     </header>
 
     <HowToPlay :visible.sync="helpVisible" />
+    <Share :visible.sync="shareVisible" />
 
     <div id="board">
       <div v-for="row in board" class="row">
@@ -37,6 +38,7 @@
 <script>
 import Keyboard from './Keyboard.vue'
 import HowToPlay from './HowToPlay.vue'
+import Share from './Share.vue'
 import { allWords, getWordOfTheDay } from './words'
 const TileStates = {
   NORMAL: '',
@@ -50,13 +52,13 @@ const transitionDuration = 300
 
 // 获取今日单词
 const answer = getWordOfTheDay()
-// console.log('answer:', answer)
 
 export default {
   name: 'App',
   components: {
     Keyboard,
-    HowToPlay
+    HowToPlay,
+    Share
 },
   data() {
     return {
@@ -191,13 +193,10 @@ export default {
       if (duration > 0) {
         setTimeout(() => {
           this.message = ''
-        }, duration);
+        }, duration)
       }
-    },
-
-    restart() {
-      Object.assign(this.$data, this.$options.data())
     }
+
   }
 }
 </script>
