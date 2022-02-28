@@ -12,15 +12,32 @@
     <Share :visible.sync="shareVisible" />
 
     <div id="board">
-      <div v-for="row in board" class="row">
+      <div
+        v-for="(row, index) in board"
+        :class="[
+          'row',
+          shakeRowIndex === index && 'shake',
+          success && currentRowIndex === index && 'jump'
+        ]"
+      >
         <div
-          v-for="tile in row"
+          v-for="(tile, i) in row"
           :class="['tile', tile.letter && 'filled', tile.state && 'reversed']"
         >
           <!-- 瓷砖正面 用于初始状态和输入状态显示 -->
-          <div class="front">{{ tile.letter }}</div>
+          <div class="front" :style="{ transitionDelay: `${i * 300}ms` }">
+            {{ tile.letter }}
+          </div>
           <!-- 瓷砖背面 用于结果展示 -->
-          <div :class="['back', tile.state]">{{ tile.letter }}</div>
+          <div 
+            :class="['back', tile.state]"
+            :style="{
+              transitionDelay: `${i * 300}ms`,
+              animationDelay: `${i * 100}ms`
+            }"
+          >
+            {{ tile.letter }}
+          </div>
         </div>
       </div>
     </div>
@@ -68,6 +85,8 @@ export default {
       currentRowIndex: 0,
 
       message: '',
+      shakeRowIndex: -1,
+      success: false,
   
       // 记录键盘上对应 letter 的状态
       keyboardLetterStates: {},
@@ -119,6 +138,7 @@ export default {
         // 检查是否在猜测范围
         if (!allWords.includes(guess) && guess !== answer) {
           this.showMessage('我好像不认识这个单词')
+          this.shake()
           return
         }
 
@@ -164,27 +184,30 @@ export default {
           // 猜对了！
           setTimeout(() => {
             this.showMessage(
-              ['我严重怀疑你知道答案 #_#', '蒙的挺准嘛 ^.^', '我就知道你可以的 ^_^', '运气还可以哦 :)', '终于猜对咯 -.-', '玩的就是极限 *_*'][
+              '我的评价是：' +
+              ['Genius', 'Magnificent', 'Impressive', 'Splendid', 'Great', 'Phew'][
                 this.currentRowIndex
               ],
               -1
             )
-          }, transitionDuration + 100)
+            this.success = true
+          }, 1600)
         } else if (this.currentRowIndex < this.board.length - 1) {
           // 开始下一行
           this.currentRowIndex++
           setTimeout(() => {
             this.allowInput = true
-          }, transitionDuration + 100)
+          }, 1600)
         } else {
           // game over :(
           setTimeout(() => {
             this.showMessage('很遗憾，机会用完了 :(\n答案是：' + answer.toUpperCase(), -1)
-          }, transitionDuration + 100)
+          }, 1600)
         }
 
       } else {
         this.showMessage('单词长度不够哦')
+        this.shake()
       }
     },
 
@@ -195,6 +218,12 @@ export default {
           this.message = ''
         }, duration)
       }
+    },
+    shake() {
+      this.shakeRowIndex = this.currentRowIndex
+      setTimeout(() => {
+        this.shakeRowIndex = -1
+      }, 1000)
     }
 
   }
@@ -228,6 +257,18 @@ export default {
   user-select: none;
   position: relative;
 }
+.tile.filled {
+  animation: zoom 0.2s;
+}
+@keyframes zoom {
+  0% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .tile .front,
 .tile .back {
   position: absolute;
@@ -248,7 +289,9 @@ export default {
 .tile .back {
   transform: rotateX(180deg);
 }
-
+.tile.filled .front {
+  border-color: #999;
+}
 .tile.reversed .front {
   transform: rotateX(180deg);
 }
@@ -271,5 +314,66 @@ export default {
 }
 .message.v-leave-to {
   opacity: 0;
+}
+
+.shake {
+  animation: shake 0.5s;
+}
+@keyframes shake {
+  0% {
+    transform: translate(1px);
+  }
+  10% {
+    transform: translate(-2px);
+  }
+  20% {
+    transform: translate(2px);
+  }
+  30% {
+    transform: translate(-2px);
+  }
+  40% {
+    transform: translate(2px);
+  }
+  50% {
+    transform: translate(-2px);
+  }
+  60% {
+    transform: translate(2px);
+  }
+  70% {
+    transform: translate(-2px);
+  }
+  80% {
+    transform: translate(2px);
+  }
+  90% {
+    transform: translate(-2px);
+  }
+  100% {
+    transform: translate(1px);
+  }
+}
+
+
+.jump .tile .back {
+  animation: jump 0.5s;
+}
+@keyframes jump {
+  0% {
+    transform: translateY(0px);
+  }
+  20% {
+    transform: translateY(5px);
+  }
+  60% {
+    transform: translateY(-25px);
+  }
+  90% {
+    transform: translateY(3px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }
 </style>
