@@ -8,6 +8,11 @@
         </svg>
       </span>
     </header>
+    <section v-if="success" style="text-align:center">
+      <strong>🎉🎉 太棒了！🎉🎉</strong>
+      <p>快去截图炫耀你的战绩吧！</p>
+      <p class="tips">如果朋友还没猜的话，要记得隐藏答案，不要剧透哦～</p>
+    </section>
     <section>
       <p>一天就一个单词没猜够？</p>
       <p>那么通过下面的自定义单词分享功能，来和你的朋友互相出题、互相折磨吧！</p>
@@ -33,7 +38,8 @@ const wordCheckReg = new RegExp(/^[a-z]{5}$/i)
 export default {
   name: '',
   props: {
-    visible: Boolean
+    visible: Boolean,
+    success: Boolean
   },
   data () {
     return {

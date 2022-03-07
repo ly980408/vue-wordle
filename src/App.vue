@@ -3,13 +3,20 @@
     <header>
       <h1>Wordle</h1>
       <div class="operations">
-        <a @click="helpVisible = true">玩法</a>
-        <a @click="shareVisible = true">分享</a>
+        <div>
+          <a @click="answerVisible = !answerVisible" v-if="success">
+            {{ answerVisible ? '隐藏答案' : '显示答案' }}
+          </a>
+        </div>
+        <div>
+          <a @click="helpVisible = true">玩法</a>
+          <a @click="shareVisible = true">分享</a>
+        </div>
       </div>
     </header>
 
     <HowToPlay :visible.sync="helpVisible" />
-    <Share :visible.sync="shareVisible" />
+    <Share :visible.sync="shareVisible" :success="success" />
 
     <div id="board">
       <div
@@ -36,7 +43,7 @@
               animationDelay: `${i * 100}ms`
             }"
           >
-            {{ tile.letter }}
+            {{ answerVisible ? tile.letter : '' }}
           </div>
         </div>
       </div>
@@ -45,7 +52,7 @@
     <Keyboard :keyboardLetterStates="keyboardLetterStates" @key="onKey" />
 
     <transition>
-      <div class="message" v-if="message">
+      <div class="message" v-if="message" v-show="answerVisible">
         {{ message }}
       </div>
     </transition>
@@ -63,9 +70,6 @@ const TileStates = {
   PRESENT: 'present',
   ABSENT: 'absent'
 }
-
-// 总动效时长
-const transitionDuration = 300
 
 // 获取今日单词
 const answer = getWordOfTheDay()
@@ -91,9 +95,11 @@ export default {
       // 记录键盘上对应 letter 的状态
       keyboardLetterStates: {},
       allowInput: true,
-
+      // 弹出层 visible 控制
       helpVisible: false,
-      shareVisible: false
+      shareVisible: false,
+      // 答案可见性，用于分享防剧透
+      answerVisible: true
     }
   },
   computed: {
@@ -184,7 +190,7 @@ export default {
           // 猜对了！
           setTimeout(() => {
             this.showMessage(
-              '我的评价是：' +
+              '🎉 ' +
               ['Genius', 'Magnificent', 'Impressive', 'Splendid', 'Great', 'Phew'][
                 this.currentRowIndex
               ],

@@ -17,9 +17,13 @@ h1 {
 }
 .operations {
   position:absolute;
+  left: 0;
   right:0;
   bottom:4px;
+  display: flex;
+  justify-content: space-between;
 }
+
 a {
   color: #909399;
   text-decoration: none;
