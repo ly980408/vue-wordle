@@ -49,7 +49,7 @@
       </div>
     </div>
 
-    <Keyboard :keyboardLetterStates="keyboardLetterStates" @key="onKey" />
+    <Keyboard :keyboardLetterStates="keyboardLetterStates" @key="onKey" v-show="answerVisible" />
 
     <transition>
       <div class="message" v-if="message" v-show="answerVisible">
