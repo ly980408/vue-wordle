@@ -80,7 +80,7 @@ export default {
     Keyboard,
     HowToPlay,
     Share
-},
+  },
   data() {
     return {
       // 创建一个5x6的 board 记录游戏状态
@@ -106,6 +106,15 @@ export default {
     currentRow() {
       return this.board[this.currentRowIndex]
     }
+  },
+  mounted() {
+    document.addEventListener('keydown', event => {
+      const key = event.key
+      this.onKey(key)
+    })
+  },
+  beforeDestroy() {
+    document.removeEventListener('keydown')
   },
   methods: {
     onKey(key) {
