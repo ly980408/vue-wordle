@@ -250,7 +250,7 @@ export default {
   display: grid;
   grid-template-rows: repeat(6, 1fr);
   grid-gap: 5px;
-  --height: min(420px, calc(var(--vh, 100vh) - 310px));
+  --height: min(420px,calc(var(--vh, 100vh) - 325px));
   height: var(--height);
   width: min(350px, calc(var(--height) / 6 * 5));
   padding: 10px;
